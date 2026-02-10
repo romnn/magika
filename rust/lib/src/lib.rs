@@ -46,7 +46,7 @@
 //! [ort-linking]: https://ort.pyke.io/setup/linking
 //! [ort-features]: https://ort.pyke.io/setup/cargo-features
 
-#![cfg_attr(feature = "_doc", feature(doc_cfg))]
+#![cfg_attr(all(feature = "_doc", docsrs), feature(doc_cfg))]
 
 pub use crate::builder::Builder;
 pub use crate::content::{ContentType, MODEL_MAJOR_VERSION, MODEL_NAME};
