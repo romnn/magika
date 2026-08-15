@@ -17,7 +17,7 @@ features = ["_doc"]
 serde = ["dep:serde"]
 # Internal features.
 _doc = ["serde"]
-_test = ["ort/download-binaries", "ort/tls-native"]
+_test = ["ort/download-binaries", "ort/tls-rustls"]
 
 [dependencies]
 ndarray = "0.17.1"
@@ -26,9 +26,9 @@ thiserror = "1.0.63"
 tokio = { version = "1.43.1", features = ["fs", "io-util"] }
 
 [dependencies.ort]
-version = "=2.0.0-rc.12"
+version = "=2.0.0-rc.13"
 default-features = false
-features = ["ndarray", "std"]
+features = ["ndarray", "std", "download-binaries", "tls-rustls", "copy-dylibs"]
 
 [dev-dependencies]
 data-encoding = "2.6.0"
