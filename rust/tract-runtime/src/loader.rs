@@ -225,6 +225,8 @@ pub(crate) fn export(nnef: &[u8]) -> Result<(Vec<u8>, Vec<u8>)> {
 mod export {
     use std::collections::HashMap;
 
+    use tract_core::tract_data::TooEarly;
+
     use super::*;
 
     /// Describes `models` as the embedded graph and its weights, sharing identical constants.
@@ -260,11 +262,12 @@ mod export {
 
     impl Op {
         fn export(node: &TypedNode, weights: &mut Vec<Weight>, bytes: &mut Vec<u8>) -> Result<Op> {
-            let usizes = |xs: &[TDim]| xs.iter().map(|x| x.to_usize()).collect::<TractResult<_>>();
+            let usizes =
+                |xs: &[TDim]| xs.iter().map(|x| x.to_usize()).collect::<Result<_, TooEarly>>();
             let op = &node.op;
             Ok(if op.name() == "Source" {
                 let shape = node.outputs[0].fact.shape.iter().map(|x| x.to_usize());
-                Op::Source { shape: shape.collect::<TractResult<_>>()? }
+                Op::Source { shape: shape.collect::<Result<_, TooEarly>>()? }
             } else if op.name() == "Const" {
                 let tensor = node.outputs[0].fact.konst.as_ref().context("constant value")?;
                 Op::Const(Weight::intern(tensor, weights, bytes)?)
@@ -331,7 +334,7 @@ mod export {
         ) -> Result<usize> {
             ensure!(tensor.datum_type() == DatumType::F32, "unsupported constant type");
             let mut data = Vec::new();
-            for x in tensor.try_as_plain()?.as_slice::<f32>()? {
+            for x in tensor.try_as_plain_ram()?.as_slice::<f32>()? {
                 data.extend_from_slice(&x.to_le_bytes());
             }
             let shape = tensor.shape().to_vec();
